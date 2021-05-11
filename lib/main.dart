@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:edusoft/Api/api.dart';
+import 'package:edusoft/Auth/TokenHandle.dart';
 import 'package:edusoft/UI/Admin/Page/Add.dart';
 import 'package:edusoft/UI/Admin/Page/AddClasses.dart';
 import 'package:edusoft/UI/Admin/Page/AddDepartment.dart';
@@ -7,6 +8,7 @@ import 'package:edusoft/UI/Admin/Page/AddStudent.dart';
 import 'package:edusoft/UI/Admin/Page/AddTeacher.dart';
 import 'package:edusoft/UI/Student/Page/Timetable.dart';
 import 'package:edusoft/UI/Admin/Admin.dart';
+import 'package:edusoft/UI/Teacher/Teacher.dart';
 import 'UI/Student//Student.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,8 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(),
       routes: {
         '/Student' : (context) => Student(),
+        '/Admin' : (context) => Admin(),
+        'Teacher' : (context) => Teacher(),
         '/RegisCourse': (context) => RegisCourse(),
         '/Timetable' :(context) => Timetable(),
         '/Classes' : (context) => AddClasses(),
@@ -67,11 +71,13 @@ SharedPreferences preferences = await SharedPreferences.getInstance();
    {
      preferences.setString('token', auth["accessToken"]);
      var roles = List<String>.from(auth["roles"]);
-     // preferences.setString('role', auth["roles"].toString());
+     if(roles[0] == 'student') Navigator.pushNamed(context, '/Student');
+     if(roles[0] == 'admin') Navigator.pushNamed(context, '/Admin');
+     if(roles[0] == 'teacher') Navigator.pushNamed(context, '/Teacher');
+     print(TokenHandle.parseJwtPayLoad(auth["accessToken"])["unique_name"]);
      preferences.setStringList("role", roles);
- // window.localStorage["token"] = auth["accessToken"];
- // print(window.localStorage["token"]);
-    Navigator.pushNamed(context, '/Student');}
+     preferences.setString('idCard', TokenHandle.parseJwtPayLoad(auth["accessToken"])["unique_name"]);
+    }
   }
   @override
   Widget build(BuildContext context) {

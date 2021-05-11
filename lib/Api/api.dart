@@ -92,7 +92,7 @@ static Future delete(Uri url) async {
   }
   static Future updateUserinfo(String role, String id, dynamic body) async {
     var url = createUrl(role + '/Update/' + id);
-    final response = await update(body, url);
+    final response = await update(jsonEncode(body), url);
     return response;
   }
   static Future createUser (String role, UserPost userPost) async {

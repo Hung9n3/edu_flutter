@@ -24,7 +24,10 @@ class _AdminState extends State<Admin> {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
+    return WillPopScope(
+        onWillPop: (){
+          return Future.value(true);
+        },
         child: Scaffold(
           body:
           Container(

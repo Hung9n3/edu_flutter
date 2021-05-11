@@ -35,10 +35,12 @@ class _AddClassesState extends State<AddClasses> {
   }
   void createClasses() async {
     ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text);
+    print(classPost.toJson());
     var response = await Api.createClasses(classPost);
     print(response.statusCode);
     if( response.statusCode == 201)
       Navigator.pushNamed(context, '/Classes');
+    else print(response.body["errors"]);
     return response;
   }
    void reload() {
@@ -362,7 +364,7 @@ class _AddClassesState extends State<AddClasses> {
                     ),
 
                      Container(
-                       height: 800,
+                       height: 600,
                        child: SingleChildScrollView(
                           //Render api data into table
                           child: DataTable(

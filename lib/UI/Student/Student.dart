@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:edusoft/Model/User/StudentGet.dart';
+import 'package:edusoft/Model/User/UserGetById.dart';
 import 'package:edusoft/UI/Headbar/Headbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,12 @@ class Student extends StatefulWidget {
 class _StudentState extends State<Student> {
   String Username = 'username';
    //Get User info
-  Future<StudentGet> getUserInfo() async {
+  Future<UserGetById> getUserInfo() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    print("token: " + preferences.get("token"));
-    print(preferences.getStringList("role"));
-    var data = await Api.getStudentInfo('Students');
-    Username = data.fullName;
+    var data = await Api.getUserinfo('Students', preferences.getString('idCard'));
+    setState(() {
+      Username = data.fullName;
+    });
     return data;
   }
   @override
@@ -32,7 +33,7 @@ class _StudentState extends State<Student> {
     init();
   }
   Future init() async{
-    await getUserInfo();
+    final data = await getUserInfo();
   }
   @override
   Widget build(BuildContext context) {
