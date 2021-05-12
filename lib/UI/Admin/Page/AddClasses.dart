@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:edusoft/Model/Class/ClassGet.dart';
 import 'package:edusoft/Model/Class/ClassPost.dart';
 import 'package:edusoft/Model/Course/Courses.dart';
@@ -39,7 +41,7 @@ class _AddClassesState extends State<AddClasses> {
     var response = await Api.createClasses(classPost);
     print(response.statusCode);
     if( response.statusCode == 201)
-      Navigator.pushNamed(context, '/Classes');
+      Navigator.popAndPushNamed(context, '/Classes');
     else print(response.body["errors"]);
     return response;
   }
@@ -392,13 +394,15 @@ class _AddClassesState extends State<AddClasses> {
                                       DataCell(Text(data.periods.toString())),
                                       DataCell(Text(data.startPeriods.toString())),
                                       DataCell(Text(day)),
-                                      DataCell(TextButton(
-                                        child:Text('Delete'),
+                                      DataCell(IconButton(
+                                        icon:Icon(Icons.delete),
                                         onPressed: () async {
+                                          final response = await Api.deleteAny('Classes', data.classCode);
+                                          if(response.statusCode == 204) Navigator.popAndPushNamed(context, '/Classes');
                                         },
                                       )),
-                                      DataCell(TextButton(
-                                        child: Text('Edit'),
+                                      DataCell(IconButton(
+                                        icon: Icon(Icons.edit),
                                         onPressed: (){
                                               showEdit(data);
                                         },

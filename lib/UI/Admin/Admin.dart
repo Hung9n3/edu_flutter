@@ -20,6 +20,7 @@ class _AdminState extends State<Admin> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(3.1.toInt());
   }
   @override
   Widget build(BuildContext context) {

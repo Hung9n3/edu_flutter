@@ -37,9 +37,10 @@ class _RegisCourseState extends State<RegisCourse> {
     });
     final Regis = await Api.getStudentInfo('Students');
     setState(() {
-      this.Regis = Regis.classes;
-      this.selectedClasses = this.Regis;
+
       this.userGetById = user;
+      this.Regis = userGetById.classes;
+      this.selectedClasses = this.Regis;
       id = userGetById.idCard;
       print(userGetById.fullName);
       userPost.fullName = userGetById.fullName;
