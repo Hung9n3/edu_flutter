@@ -34,15 +34,18 @@ class _AddCourse extends State<AddCourse> {
     print(window.location.href);
     return this.departments;
   }
-  Widget showAdd() {
+  void showAdd() {
     showDialog(context: context,
         builder: (BuildContext context) {
             return AlertDialog(
               actions: [
-                TextButton(onPressed: createCourse, child: Text('Save')),
-                TextButton(onPressed: (){setState(() {
+                TextButton(onPressed: () async {
+                  var response = await createCourse();
+                }, child: Text('Save')),
+                TextButton(onPressed: (){
                   Navigator.of(context).pop();
-                });}, child: Text('Close'))
+                  reload();},
+                    child: Text('Close'))
               ],
               title:Text('Add Course'),
               content: StatefulBuilder(
@@ -97,7 +100,7 @@ class _AddCourse extends State<AddCourse> {
         }
     );
   }
-  Widget showEdit(Course data) {
+  void showEdit(Course data) {
     TextEditingController name = TextEditingController(text: data.name);
     for(var d in departments)
       {
@@ -174,17 +177,15 @@ class _AddCourse extends State<AddCourse> {
       );
     });
   }
-  void createCourse() async {
+  Future createCourse() async {
     coursesPost = CoursesPost(this.name.text, this.credit, this.departmentId, this.courseCode);
     print(coursesPost.toJson());
     final response = await Api.createCourse(coursesPost);
-    if(response.statusCode == 201) reload();
+    return response;
   }
   void reload() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (BuildContext context) => super.widget));}
+    Navigator.popAndPushNamed(context, '/Courses');
+  }
   Future init() async {
     final departments = await getDepartment();
     this.departments = departments;
@@ -198,12 +199,18 @@ class _AddCourse extends State<AddCourse> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Courses'),
-      ),
       body: Container(
       child: Column (
         children: [
+          Container(child: Row(
+            children: [
+              IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+                setState(() {
+                  Navigator.of(context).pop();
+                });
+              })
+            ],
+          )),
                 Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: TextButton(

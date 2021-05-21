@@ -5,7 +5,6 @@ import 'package:edusoft/Model/Class/ClassPost.dart';
 import 'package:edusoft/Model/Course/Courses.dart';
 import 'package:edusoft/Model/Department/DepartmentGet.dart';
 import 'package:edusoft/Model/Department/DepartmentPost.dart';
-import 'package:edusoft/Model/User/StudentGet.dart';
 import 'package:edusoft/Model/User/User.dart';
 import 'package:edusoft/Model/User/UserGet.dart';
 import 'package:edusoft/Model/User/UserGetById.dart';
@@ -92,7 +91,7 @@ static Future delete(Uri url) async {
   }
   static Future updateUserinfo(String role, String id, dynamic body) async {
     var url = createUrl(role + '/Update/' + id);
-    final response = await update(jsonEncode(body), url);
+    final response = await update(body, url);
     return response;
   }
   static Future createUser (String role, UserPost userPost) async {
@@ -100,13 +99,7 @@ static Future delete(Uri url) async {
     final response = await post(jsonEncode(userPost.toJson()), url);
     return response;
   }
-  static Future<StudentGet> getStudentInfo(String role) async {
-    var _url = Uri.parse(url + role + '/Get/BTBTIU21001');
-    final response = await http.get(_url, );
-    final data = jsonDecode(response.body);
-    StudentGet studentGet = StudentGet.fromJson(data);
-    return studentGet;
-  }
+
   static Future<List<DepartmentGet>> getDepartment() async {
     var _url = createUrl('Departments');
     final response = await get(_url);

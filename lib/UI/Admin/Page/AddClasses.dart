@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:edusoft/Model/Class/ClassGet.dart';
 import 'package:edusoft/Model/Class/ClassPost.dart';
 import 'package:edusoft/Model/Course/Courses.dart';
@@ -25,33 +23,16 @@ class _AddClassesState extends State<AddClasses> {
   List<UserGet> teachers = [];
   List<Course> courses = [];
   List<ClassGet> classes = [];
-  Future Init() async {
-    final classes = await Api.getClass();
-    setState(() {
-      this.classes = classes;
-    });
-      final courses = await Api.getAllCourse();
-      this.courses = courses;
-      final teachers = await Api.getAllUserInfo('Teachers');
-      this.teachers = teachers;
-  }
-  void createClasses() async {
+    Future createClasses() async {
     ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text);
     print(classPost.toJson());
     var response = await Api.createClasses(classPost);
-    print(response.statusCode);
-    if( response.statusCode == 201)
-      Navigator.popAndPushNamed(context, '/Classes');
-    else print(response.body["errors"]);
     return response;
   }
-   void reload() {
-     Navigator.pushReplacement(
-         context,
-         MaterialPageRoute(
-             builder: (BuildContext context) => super.widget));}
-   
-  Widget showEdit(ClassGet classGet){
+  void reload(){
+      Navigator.popAndPushNamed(context, '/Classes');
+  }
+  void showEdit(ClassGet classGet){
     showDialog(context: context, builder: (BuildContext context) {
       for(var t in teachers)
         {
@@ -186,12 +167,173 @@ class _AddClassesState extends State<AddClasses> {
       );
     });
   }
+  void showAdd() {
+    showDialog(
+        context: context, barrierDismissible: false,
+        builder : (BuildContext context) {
+          return new AlertDialog(
+              actions: [
+                //Login Button
+                new TextButton(
+                    child: Text('Submit'),
+                    onPressed: () async {
+                      final response = await createClasses();
+                      if(response.statusCode == 201) {
+                        Navigator.of(context).pop();
+                        reload();
+                      }
+                    }
+                ),
+                new TextButton(
+                  child: new Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+              title: new Text('Add Class'),
+              content:  StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return  Container(
+                      height: 450,
+                      width: 350.0,
+                      child: Container(
+                        child: SingleChildScrollView(
+                          child: Column(
+                              children: [
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: DropdownButton(
+                                      isExpanded: true,
+                                      hint: Text('Choose a course'),
+                                      value: courseCode,
+                                      elevation: 16,
+                                      onChanged: (String newValue){
+                                        setState(() {
+                                          courseCode = newValue;
+                                          print(courseCode);
+                                        });
+                                      },
+                                      items: courses.map((data) {
+
+                                        return DropdownMenuItem(
+                                            value: data.courseCode,
+                                            child: Text(data.name));
+                                      }).toList(),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: DropdownButton(
+                                      isExpanded: true,
+                                      hint: Text('Choose a teacher'),
+                                      value: teacherIdCard,
+                                      elevation: 16,
+                                      onChanged: (String newValue){
+                                        setState(() {
+                                          teacherIdCard = newValue;
+                                          print(teacherIdCard);
+                                        });
+                                      },
+                                      items: teachers.map((data) {
+
+                                        return DropdownMenuItem(
+                                            value: data.idCard,
+                                            child: Text(data.fullName));
+                                      }).toList(),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: DropdownButton(
+                                      isExpanded: true,
+                                      hint: Text('Choose a day'),
+                                      value: day,
+                                      elevation: 16,
+                                      onChanged: (int newValue){
+                                        setState(() {
+                                          day = newValue;
+                                          print(day);
+                                        });
+                                      },
+                                      items: days.map((data) {
+
+                                        return DropdownMenuItem(
+                                            value: data.id,
+                                            child: Text(data.Day));
+                                      }).toList(),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: TextField(
+                                      autofocus: true,
+                                      controller: room,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: 'Room'
+                                      ),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: TextField(
+                                      controller: slot,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: 'Slot'
+                                      ),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: TextField(
+                                      autofocus: true,
+                                      controller: startPeriods,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: 'startPeriods'
+                                      ),
+                                    )
+                                ),
+                                Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: TextField(
+                                      autofocus: true,
+                                      controller: periods,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: 'periods'
+                                      ),
+                                    )
+                                ),
+                              ]
+                          ),
+                        ),
+                      )
+                  );
+                },
+              )
+          );
+        }
+    );
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     Init();
   }
+   Future Init() async {
+     final classes = await Api.getClass();
+     final courses = await Api.getAllCourse();
+     final teachers = await Api.getAllUserInfo('Teachers');
+     setState(() {
+       this.classes = classes;
+       this.courses = courses;
+       this.teachers = teachers;
+     });
+   }
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -199,172 +341,27 @@ class _AddClassesState extends State<AddClasses> {
         return Future.value(true);
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('Classes'),
-        ),
-        body: Center(
-          child: Container(
-            child: Padding(
+        body: Container(
               padding: const EdgeInsets.symmetric(horizontal:30.0),
               child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 0),
-                      child: Container(
+                    Container(child: Row(
+                      children: [
+                        IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+                          setState(() {
+                            Navigator.of(context).pop();
+                          });
+                        })
+                      ],
+                    )),
+                    Container(
+                        padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 0),
                         child:
-                        TextButton(onPressed: (){
-                          showDialog(
-                              context: context, barrierDismissible: false,
-                              builder : (BuildContext context) {
-                                return new AlertDialog(
-                                    actions: [
-                                      //Login Button
-                                      new TextButton(
-                                          child: Text('Submit'),
-                                          onPressed: createClasses
-                                      ),
-                                      new TextButton(
-                                        child: new Text('Close'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                    title: new Text('Add Class'),
-                                    content:  StatefulBuilder(
-                                      builder: (BuildContext context, StateSetter setState) {
-                                        return  Container(
-                                              height: 450,
-                                              width: 350.0,
-                                              child: Container(
-                                                child: SingleChildScrollView(
-                                                  child: Column(
-                                                      children: [
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: DropdownButton(
-                                                              isExpanded: true,
-                                                              hint: Text('Choose a course'),
-                                                              value: courseCode,
-                                                              elevation: 16,
-                                                              onChanged: (String newValue){
-                                                                setState(() {
-                                                                  courseCode = newValue;
-                                                                  print(courseCode);
-                                                                });
-                                                              },
-                                                              items: courses.map((data) {
-
-                                                                return DropdownMenuItem(
-                                                                    value: data.courseCode,
-                                                                    child: Text(data.name));
-                                                              }).toList(),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: DropdownButton(
-                                                              isExpanded: true,
-                                                              hint: Text('Choose a teacher'),
-                                                              value: teacherIdCard,
-                                                              elevation: 16,
-                                                              onChanged: (String newValue){
-                                                                setState(() {
-                                                                  teacherIdCard = newValue;
-                                                                  print(teacherIdCard);
-                                                                });
-                                                              },
-                                                              items: teachers.map((data) {
-
-                                                                return DropdownMenuItem(
-                                                                    value: data.idCard,
-                                                                    child: Text(data.fullName));
-                                                              }).toList(),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: DropdownButton(
-                                                              isExpanded: true,
-                                                              hint: Text('Choose a day'),
-                                                              value: day,
-                                                              elevation: 16,
-                                                              onChanged: (int newValue){
-                                                                setState(() {
-                                                                  day = newValue;
-                                                                  print(day);
-                                                                });
-                                                              },
-                                                              items: days.map((data) {
-
-                                                                return DropdownMenuItem(
-                                                                    value: data.id,
-                                                                    child: Text(data.Day));
-                                                              }).toList(),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: TextField(
-                                                              autofocus: true,
-                                                              controller: room,
-                                                              decoration: InputDecoration(
-                                                                  border: OutlineInputBorder(),
-                                                                  labelText: 'Room'
-                                                              ),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: TextField(
-                                                              controller: slot,
-                                                              decoration: InputDecoration(
-                                                                  border: OutlineInputBorder(),
-                                                                  labelText: 'Slot'
-                                                              ),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: TextField(
-                                                              autofocus: true,
-                                                              controller: startPeriods,
-                                                              decoration: InputDecoration(
-                                                                  border: OutlineInputBorder(),
-                                                                  labelText: 'startPeriods'
-                                                              ),
-                                                            )
-                                                        ),
-                                                        Container(
-                                                            padding: EdgeInsets.all(5),
-                                                            child: TextField(
-                                                              autofocus: true,
-                                                              controller: periods,
-                                                              decoration: InputDecoration(
-                                                                  border: OutlineInputBorder(),
-                                                                  labelText: 'periods'
-                                                              ),
-                                                            )
-                                                        ),
-                                                      ]
-                                                  ),
-                                                ),
-                                              )
-                                          );
-                                      },
-                                    )
-                                );
-                              }
-                          );
-                        },
+                        TextButton(onPressed: showAdd,
                             child: Text('Add New Class',
-                            style: TextStyle(
-                              fontSize: 16
-                            )),
+                            style: TextStyle(fontSize: 16)),
                         )
                       ),
-                    ),
-
                      Container(
                        height: 600,
                        child: SingleChildScrollView(
@@ -372,9 +369,7 @@ class _AddClassesState extends State<AddClasses> {
                           child: DataTable(
                               columns: [
                                 DataColumn(label: Text('Id')),
-                                DataColumn(
-                                    label: Text('Course')
-                                ),
+                                DataColumn(label: Text('Course')),
                                 DataColumn(label: Text('Department')),
                                 DataColumn(label: Text('Teacher')),
                                 DataColumn(label: Text('Credits')),
@@ -403,10 +398,7 @@ class _AddClassesState extends State<AddClasses> {
                                       )),
                                       DataCell(IconButton(
                                         icon: Icon(Icons.edit),
-                                        onPressed: (){
-                                              showEdit(data);
-                                        },
-                                      ))
+                                        onPressed: (){showEdit(data);},))
                                     ]
                                 );
                               }).toList()
@@ -415,9 +407,7 @@ class _AddClassesState extends State<AddClasses> {
                      ),
                   ],
               ),
-            ),
           ),
-        )
       ),
     );
   }

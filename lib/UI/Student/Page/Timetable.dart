@@ -1,9 +1,9 @@
 import 'package:edusoft/Api/api.dart';
 import 'package:edusoft/Auth/TokenHandle.dart';
 import 'package:edusoft/Model/Class/ClassGet.dart';
-import 'package:edusoft/Model/User/UserGet.dart';
 import 'package:edusoft/Model/User/UserGetById.dart';
 import 'package:edusoft/Model/WeekDay/WeekDay.dart';
+import 'package:edusoft/UI/Admin/Page/AddTeacher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_timetable_view/flutter_timetable_view.dart';
 
@@ -13,15 +13,35 @@ class Timetable extends StatefulWidget {
 }
 
 class _TimetableState extends State<Timetable> {
+  String Role;
   List<ClassGet> classes = [];
   UserGetById userGet;
-  ClassGet c;
-  double startT = 8 ;
-  int startH;
-  var startM;
-  double endT;
-  int endH;
-  var endM;
+  void showDetail(ClassGet classGet){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        actions: [
+          TextButton(onPressed: (){Navigator.of(context).pop();}, child:Text('close') )
+        ],
+        content: Container(
+          padding: EdgeInsets.all(5.0),
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text('Course')),
+              DataColumn(label: Text('Room')),
+              DataColumn(label: Text('Teacher'))
+            ],
+            rows: [
+              DataRow(cells: [
+                DataCell(Text(classGet.course)),
+                DataCell(Text(classGet.room)),
+                DataCell(Text(classGet.teacher))
+              ])
+            ],
+          )
+        ),
+      );
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -29,23 +49,32 @@ class _TimetableState extends State<Timetable> {
     Init();
   }
   Future Init() async {
-    final user = await Api.getUserinfo('Students', TokenHandle.parseJwtPayLoad(await TokenHandle.getString('token'))["unique_name"]);
+    final role = await TokenHandle.getStringList('role');
+    switch (role[0]) {
+      case 'student' : setState(() {
+        this.Role = 'Students';
+      });
+      print(Role);
+      break;
+      case 'teacher' : setState(() {
+        this.Role = 'Teachers';
+      });
+      print(this.Role);
+      break;
+    }
+    final user = await Api.getUserinfo(this.Role, TokenHandle.parseJwtPayLoad(await TokenHandle.getString('token'))["unique_name"]);
     setState(() {
       this.userGet = user;
       this.classes = this.userGet.classes;
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Time table'),
-        ),
-        body: Center(
-          child: Container(
+    return Stack(
+          children: [
+            Container(
+              padding: EdgeInsets.all(30),
             child: TimetableView(
               laneEventsList: days.map((e) => LaneEvents(
                 lane: Lane(name: e.Day),
@@ -63,12 +92,15 @@ class _TimetableState extends State<Timetable> {
                       int endH = endT.toInt();
                       var endM = (endT - endH.toDouble())*60;
                       return TableEvent(
-                        decoration: BoxDecoration(border: Border(
-                          top: BorderSide(width: 1.0, color: Color(0xFFFF000000)),
-                          left: BorderSide(width: 1.0, color: Color(0xFFFFFFFFFF)),
-                          right: BorderSide(width: 1.0, color: Color(0xFFFFFFFFFF)),
-                          bottom: BorderSide(width: 1.0, color: Color(0xFFFF000000)),
-                        )),
+                        onTap: (){
+                          showDetail(c);
+                        },
+                        // decoration: BoxDecoration(border: Border(
+                        //   top: BorderSide(width: 1.0, color: Color(0xFFFF000000)),
+                        //   left: BorderSide(width: 1.0, color: Color(0xFFFFFFFFFF)),
+                        //   right: BorderSide(width: 1.0, color: Color(0xFFFFFFFFFF)),
+                        //   bottom: BorderSide(width: 1.0, color: Color(0xFFFF000000)),
+                        // )),
                           title: c.course,
                           start: TableEventTime(
                           hour: startH,
@@ -83,8 +115,10 @@ class _TimetableState extends State<Timetable> {
               )).toList(),
             ),
           ),
-        ),
-      )
+            Container(
+              padding: EdgeInsets.all(30),
+              child: IconButton(icon: Icon(Icons.arrow_back_ios),
+                onPressed: Navigator.of(context).pop),),]
     );
   }
 }

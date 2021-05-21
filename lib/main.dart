@@ -1,25 +1,18 @@
 import 'dart:convert';
 import 'package:edusoft/Api/api.dart';
 import 'package:edusoft/Auth/TokenHandle.dart';
-import 'package:edusoft/UI/Admin/Page/Add.dart';
-import 'package:edusoft/UI/Admin/Page/AddClasses.dart';
-import 'package:edusoft/UI/Admin/Page/AddDepartment.dart';
-import 'package:edusoft/UI/Admin/Page/AddStudent.dart';
-import 'package:edusoft/UI/Admin/Page/AddTeacher.dart';
-import 'package:edusoft/UI/Student/Page/Timetable.dart';
 import 'package:edusoft/UI/Admin/Admin.dart';
-import 'package:edusoft/UI/Teacher/Teacher.dart';
-import 'UI/Student//Student.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Landing/Landing.dart';
 import 'Navbar/NavBar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'UI/Student/Page/RegisCourse.dart';
-import 'dart:html' show window;
+import 'package:url_strategy/url_strategy.dart';
 
 
-void main() => runApp(MyApp());
+
+void main() {
+  setPathUrlStrategy();
+  return runApp(MyApp());}
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -27,18 +20,9 @@ class MyApp extends StatelessWidget {
       title: 'Edusoft Web',
       theme: ThemeData(primarySwatch: Colors.blue, fontFamily: "Montserrat"),
       home: MyHomePage(),
+
       routes: {
-        '/Student' : (context) => Student(),
-        '/Admin' : (context) => Admin(),
-        'Teacher' : (context) => Teacher(),
-        '/RegisCourse': (context) => RegisCourse(),
-        '/Timetable' :(context) => Timetable(),
-        '/Classes' : (context) => AddClasses(),
-        '/Courses': (context) => AddCourse(),
-        '/Departments' : (context) => AddDepartment(),
-        '/Students' : (context) => Students(),
-        '/Teachers' : (context) => Teachers(),
-        '/Admin' : (context) => Admin()
+        '/Admin': (context) => Admin(),
       },
     );
   }
@@ -50,33 +34,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // final LocalStorage localStorage = LocalStorage('key');
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  //Login Handle
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   getData();
-  // }
-  // getData() async {
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  // }
   void loginHandle() async {
  var response1 = await Api.login(nameController.text, passwordController.text);
   final auth = jsonDecode(response1.body);
-SharedPreferences preferences = await SharedPreferences.getInstance();
  if(response1.statusCode == 200)
    {
-     preferences.setString('token', auth["accessToken"]);
+     TokenHandle.setString('token', auth["accessToken"]);
      var roles = List<String>.from(auth["roles"]);
-     if(roles[0] == 'student') Navigator.pushNamed(context, '/Student');
-     if(roles[0] == 'admin') Navigator.pushNamed(context, '/Admin');
-     if(roles[0] == 'teacher') Navigator.pushNamed(context, '/Teacher');
+     Navigator.pushNamed(context,'/Admin');
      print(TokenHandle.parseJwtPayLoad(auth["accessToken"])["unique_name"]);
-     preferences.setStringList("role", roles);
-     preferences.setString('idCard', TokenHandle.parseJwtPayLoad(auth["accessToken"])["unique_name"]);
+     await TokenHandle.setStringList("role", roles);
+     await TokenHandle.setString('idCard', TokenHandle.parseJwtPayLoad(auth["accessToken"])["unique_name"]);
     }
   }
   @override
@@ -172,9 +142,4 @@ SharedPreferences preferences = await SharedPreferences.getInstance();
     );
   }
 }
-class Someething extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
+

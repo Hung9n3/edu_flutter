@@ -1,9 +1,21 @@
-
+import 'dart:async';
+import 'package:edusoft/Auth/TokenHandle.dart';
+import 'package:edusoft/Model/User/UserGetById.dart';
+import 'package:edusoft/UI/Admin/Page/Add.dart';
+import 'package:edusoft/UI/Admin/Page/AddClasses.dart';
+import 'package:edusoft/UI/Admin/Page/AddDepartment.dart';
+import 'package:edusoft/UI/Admin/Page/AddStudent.dart';
+import 'package:edusoft/UI/Admin/Page/AddTeacher.dart';
 import 'package:edusoft/UI/Headbar/Headbar.dart';
+import 'package:edusoft/UI/Admin/Page/Home.dart';
+import 'package:edusoft/UI/Student/Page/Home.dart';
+import 'package:edusoft/UI/Student/Page/RegisCourse.dart';
+import 'package:edusoft/UI/Student/Page/Timetable.dart';
+import 'package:edusoft/UI/Teacher/Page/Home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:edusoft/Api/api.dart' show Api;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 
 
 class Admin extends StatefulWidget {
@@ -12,139 +24,151 @@ class Admin extends StatefulWidget {
 }
 
 class _AdminState extends State<Admin> {
-
-  //Get User info
-
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    print(3.1.toInt());
-  }
-  @override
-  Widget build(BuildContext context) {
-
+  String role;
+  Widget Teacher() {
     return WillPopScope(
         onWillPop: (){
           return Future.value(true);
         },
         child: Scaffold(
-          body:
-          Container(
-              child:
-              Column(
+            body: Column(
                 children: [
-                  Headbar('Admin'),
-                  Container(
-                      width: 900,
-                      padding : EdgeInsets.symmetric(vertical: 80.0,horizontal: 80.0),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0,0,0,0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children:[
-                              Container(
-                                child: Column(
-                                  children: [
-                                    IconButton(
-                                      icon: FaIcon(FontAwesomeIcons.clipboardCheck),
-                                      iconSize: 60,
-                                      tooltip: 'Classes',
-                                      onPressed: () {
-                                        Navigator.pushNamed(context, '/Classes');
-                                      },
-                                    ),
-                                    Text('Classes')
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 0),
-                                child: Container(
-                                  child: Column(
-                                    children: [
-                                      IconButton(
-                                        icon: FaIcon(FontAwesomeIcons.calendarAlt),
-                                        iconSize: 60,
-                                        tooltip: 'Departments',
-                                        onPressed: (){
-                                          Navigator.pushNamed(context, '/Departments');
-                                        },
-                                      ),
-                                      Text("Departments")
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal:0),
-                                child: Container(
-                                  child: Column(
-                                    children: [
-                                      IconButton(
-                                        icon: FaIcon(FontAwesomeIcons.clipboardList),
-                                        iconSize: 60,
-                                        tooltip: 'Courses',
-                                        onPressed: (){
-                                          Navigator.pushNamed(context, '/Courses');
-                                        },
-                                      ),
-                                      Text("Courses")
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal:0),
-                                child: Container(
-                                  child: Column(
-                                    children: [
-                                      IconButton(
-                                        icon: FaIcon(FontAwesomeIcons.clipboardList),
-                                        iconSize: 60,
-                                        tooltip: 'Students',
-                                        onPressed: (){
-                                          Navigator.pushNamed(context, '/Students');
-                                        },
-                                      ),
-                                      Text("Students"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal:0),
-                                child: Container(
-                                  child: Column(
-                                    children: [
-                                      IconButton(
-                                        icon: FaIcon(FontAwesomeIcons.clipboardList),
-                                        iconSize: 60,
-                                        tooltip: 'Teachers',
-                                        onPressed: (){
-                                          Navigator.pushNamed(context, '/Teachers');
-                                        },
-                                      ),
-                                      Text("Teachers"),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ]
-                        ),
-                      )
-                  )
+                  Headbar(Username),
+                  Expanded(
+                      child: NestedNavigator(navigationKey: _navigatorKey,
+                      initialRoute: '/',
+                      routes: {
+                    '/' : (context) => TeacherH(),
+                    '/timetable' : (context) => Timetable(),
+                  }))
 
-                ],
-              )
-          ),
+                ]
+            )
         )
 
     );
   }
+  Widget Student(){
+    return WillPopScope(
+        onWillPop: (){
+          return Future.value(true);
+        },
+        child: Scaffold(
+            body: Column(
+                children: [
+                  Headbar(Username),
+                  Expanded(child: NestedNavigator(navigationKey: _navigatorKey, initialRoute: '/', routes: {
+                    '/' : (context) => StudentH(),
+                    '/applyCourse': (context) => RegisCourse(),
+                    '/timetable' : (context) => Timetable(),
+                  }))
+                ]
+            )
+        )
+    );
+  }
+  Widget Admin(){
+    return WillPopScope(
+        onWillPop: (){
+          return Future.value(true);
+        },
+        child: Scaffold(
+            body: Column(
+                children: [
+                  Headbar(Username),
+                  Expanded(child: NestedNavigator(navigationKey: _navigatorKey, initialRoute: '/', routes: {
+                    '/' : (context) => AdminH(),
+                    '/Courses' : (context) => AddCourse(),
+                    '/Departments' : (context) => AddDepartment(),
+                    '/Classes' : (context) => AddClasses(),
+                    '/Students' : (context) => Students(),
+                    '/Teachers' : (context) => Teachers()
+                  }))
+                ]
+            )
+        )
+    );
+  }
+  String Username = 'Admin';
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
+  Future init() async{
+    String Role;
+    List<String> role = await TokenHandle.getStringList('role');
+    setState(() {
+      this.role = role[0];
+    });
+      if(this.role != 'admin') {
+        if(this.role == 'student' ) {
+          setState(() {
+            Role = 'Students';
+          });
+        }
+        if(this.role == 'teacher')
+          {
+            setState(() {
+              Role = 'Teachers';
+            });
+          }
+        UserGetById user = await Api.getUserinfo(Role,  TokenHandle.parseJwtPayLoad(await TokenHandle.getString('token'))["unique_name"]);
+        setState(() {
+          this.Username = user.fullName;
+        });
+      }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints){
+      if(role == 'student') return Student();
+      else if(role == 'teacher') return Teacher();
+      else if(role == 'admin') return Admin();
+      else return Scaffold(body: Container(child: Text('who are you'+ role + '???'),));
+    });
+  }
+
+
 }
-// class Users {
-//   String Name;
-//   Users(this.Name);
-// }
+class NestedNavigator extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigationKey;
+  final String initialRoute;
+  final Map<String, WidgetBuilder> routes;
+
+  NestedNavigator({
+    @required this.navigationKey,
+    @required this.initialRoute,
+    @required this.routes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      child: Navigator(
+        key: navigationKey,
+        initialRoute: initialRoute,
+        onGenerateRoute: (RouteSettings routeSettings) {
+          print(routeSettings.name);
+          WidgetBuilder builder = routes[routeSettings.name];
+
+          return MaterialPageRoute(
+            builder: builder,
+            settings: routeSettings,
+          );
+        },
+      ),
+      onWillPop: () {
+        if(navigationKey.currentState.canPop()) {
+          navigationKey.currentState.pop();
+          return Future<bool>.value(false);
+        }
+        return Future<bool>.value(true);
+      },
+    );
+  }
+}
+
+

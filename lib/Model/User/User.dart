@@ -2,6 +2,7 @@
 
 class UserPost {
   UserPost(
+      this.idCard,
     this.classes,
     this.departmentId,
     this.fullName,
@@ -12,7 +13,7 @@ class UserPost {
     this.address,
     this.isHead,
   );
-
+  String idCard;
   int departmentId;
   String fullName;
   bool gender;
@@ -20,10 +21,11 @@ class UserPost {
   String email;
   String phoneNumber;
   String address;
-  bool isHead;
+  bool isHead = false;
   List<int> classes;
 
   Map<String, dynamic> toJson() => {
+    'idCard' : idCard,
     "departmentId": departmentId,
     "fullName": fullName,
     "gender": gender,

@@ -99,6 +99,7 @@ class _DesktopNavbarState extends State<DesktopNavbar> {
       );
   }
 }
+
 class MobileNavbar extends StatefulWidget {
   String Username;
   MobileNavbar(this.Username);

@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'package:edusoft/Auth/TokenHandle.dart';
 import 'package:edusoft/Model/Class/ClassGet.dart';
-import 'package:edusoft/Model/Course/Courses.dart';
-import 'package:edusoft/Model/Department/DepartmentGet.dart';
-import 'package:edusoft/Model/User/TeacherGet.dart';
 import 'package:edusoft/Model/User/User.dart';
 import 'package:edusoft/Model/User/UserGet.dart';
 import 'package:edusoft/Model/User/UserGetById.dart';
 import 'package:edusoft/Model/WeekDay/WeekDay.dart';
 import 'package:flutter/material.dart';
-import 'package:edusoft/Api/api.dart' show Api;
+import 'package:edusoft/Api/api.dart';
 
 
 class RegisCourse extends StatefulWidget {
@@ -24,31 +21,31 @@ class _RegisCourseState extends State<RegisCourse> {
   List<ClassGet> Regis = [];
   List<UserGet> teacher = [];
   UserGetById userGetById ;
-  UserPost userPost = UserPost([], 0, 'fullName', true, '', 'email', 'phoneNumber', 'address', null);
+  UserPost userPost = UserPost('',[], 0, 'fullName', true, '', 'email', 'phoneNumber', 'address', false);
   String id ;
   Future getCourse() async {
     final classGets = await Api.getClass();
     final user = await Api.getUserinfo('Students', TokenHandle.parseJwtPayLoad(await TokenHandle.getString('token'))["unique_name"]);
     final department = await Api.getDepartment();
-    final teacher = await Api.getAllUserInfo('Teachers');
+    final teacher = await Api.getAllUserInfo('Students');
     setState(() {
       this.classGets = classGets;
       this.teacher = teacher;
     });
-    final Regis = await Api.getStudentInfo('Students');
     setState(() {
 
       this.userGetById = user;
       this.Regis = userGetById.classes;
       this.selectedClasses = this.Regis;
-      id = userGetById.idCard;
-      print(userGetById.fullName);
+      userPost.idCard = userGetById.idCard;
       userPost.fullName = userGetById.fullName;
       userPost.gender = userGetById.gender;
       userPost.phoneNumber = userGetById.phoneNumber;
       userPost.address = userGetById.address;
       userPost.email = userGetById.email;
       userPost.birthdate = userGetById.birthdate;
+      userPost.isHead = userGetById.isHead;
+      print(userGetById.isHead);
       for(var d in department)
         {
           if(userGetById.department == d.name)
@@ -59,6 +56,9 @@ class _RegisCourseState extends State<RegisCourse> {
         }
     });
     return  classGets;
+  }
+  void reload(){
+    Navigator.popAndPushNamed(context, '/applyCourse');
   }
   @override
   void initState()
@@ -74,131 +74,133 @@ Future init() async {
 }
   @override
   Widget build(BuildContext context) {
-      return  Scaffold(
-          appBar: AppBar(
-            title: Text('Flutter ListView'),
-          ),
-          body:
-             Center(
-               child: Padding(
-                 padding: const EdgeInsets.symmetric(vertical: 30,horizontal: 100),
-                 child: Column(
-                          children: [
-                            Container(
-                              height: 300,
-                              child: SingleChildScrollView(
-                                //Render api data into table
-                                child: DataTable(
-                                    onSelectAll: (isSelectedAll){
+      return Container(
+        child: SingleChildScrollView(
+          // scrollDirection: Axis.horizontal,
+                 child: SingleChildScrollView(
+                   child: Padding(
+                     padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                     child: Column(
+                              children: [
+                                Container(child: Row(
+                                  children: [
+                                    IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
                                       setState(() {
-                                        selectedClasses = isSelectedAll ? classGets : [];
+                                        Navigator.of(context).pop();
                                       });
-                                    },
-                                    columns: [
-                                      DataColumn(label: Text('Id')),
-                                      DataColumn(
-                                          label: Text('Course')
-                                      ),
-                                      DataColumn(label: Text('Department')),
-                                      DataColumn(label: Text('Teacher')),
-                                      DataColumn(label: Text('Credits')),
-                                      DataColumn(label: Text('Start Period')),
-                                      DataColumn(label: Text('Day in week')),
-                                    ],
-                                    rows: classGets.map((data) {
-                                      var index = data.classCode;
-                                      String day = days[data.day].Day;
-                                      return DataRow(
-                                        //enable selected row
-                                          selected: selectedClasses.any((element) => element.classCode == data.classCode),
-                                          onSelectChanged: (isSelected) {
-                                            setState(() {
-                                              final isAdding = isSelected;
-                                              if(isAdding == true)
-                                                {print(isAdding);
-                                                  selectedClasses.add(data);}
-                                              else
-                                                   selectedClasses.remove(data);
-                                            });
-                                          },
-                                          cells: [
-                                            DataCell(Text(data.classCode)),
-                                            DataCell(Text(data.course)),
-                                            DataCell(Text(data.department)),
-                                            DataCell(Text(data.teacher)),
-                                            DataCell(Text(data.periods.toString())),
-                                            DataCell(Text(data.startPeriods.toString())),
-                                            DataCell(Text(day)),
-                                          ]
-                                      );
-                                    }).toList()
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0,50.0,0,0),
-                              child: Container(
-                                child: DataTable(
-                                  columns: [
-                                    DataColumn(label: Text('Id')),
-                                    DataColumn(label: Text('Course')),
-                                    // DataColumn(label: Text('Department')),
-                                    // DataColumn(label: Text('Teacher')),
-                                    DataColumn(label: Text('Credits')),
-                                    DataColumn(label: Text('Start Period')),
-                                    DataColumn(label: Text('Day in week')),
-                                    DataColumn(label: Text(''))
+                                    })
                                   ],
-                                   rows: selectedClasses.map((data) {
-                                     String day = days[data.day].Day;
-                                     return DataRow(cells: [
-                                       DataCell(Text(data.classCode)),
-                                       DataCell(Text(data.course)),
-                                       // DataCell(Text(data.department)),
-                                       // DataCell(Text(data.teacher)),
-                                       DataCell(Text(data.periods.toString())),
-                                       DataCell(Text(data.startPeriods.toString())),
-                                       DataCell(Text(day)),
-                                       DataCell(IconButton(
-                                         icon: Icon(iconData),
-                                         onPressed: () async{
-                                           selectedClasses.remove(data);
-                                           List<int> classes = [];
-                                           setState(() {
-                                             for(var s in selectedClasses)
-                                             {
-                                               classes.add(s.id);
-                                             }
-                                             this.userPost.classes = classes;
-                                           });
-                                           final response = await Api.updateUserinfo('Students', id, userPost.toJson());
-                                           if(response.statusCode == 204) Navigator.popAndPushNamed(context, '/RegisCourse');
-                                           else selectedClasses.add(data);
-                                         },
-                                       ))
-                                     ]);
-                                   }).toList()
+                                )),
+                                Container(
+                                  height: 300,
+                                  child: SingleChildScrollView(
+                                    //Render api data into table
+                                    child: DataTable(
+                                        onSelectAll: (isSelectedAll){
+                                          setState(() {
+                                            selectedClasses = isSelectedAll ? classGets : [];
+                                          });
+                                        },
+                                        columns: [
+                                          DataColumn(label: Text('Id')),
+                                          DataColumn(
+                                              label: Text('Course')
+                                          ),
+                                          DataColumn(label: Text('Department')),
+                                          DataColumn(label: Text('Teacher')),
+                                          DataColumn(label: Text('Credits')),
+                                          DataColumn(label: Text('Start Period')),
+                                          DataColumn(label: Text('Day in week')),
+                                        ],
+                                        rows: classGets.map((data) {
+                                          String day = days[data.day-1].Day;
+                                          return DataRow(
+                                            //enable selected row
+                                              selected: selectedClasses.any((element) => element.classCode == data.classCode),
+                                              onSelectChanged: (isSelected) {
+                                                setState(() {
+                                                  final isAdding = isSelected;
+                                                  if(isAdding == true)
+                                                    {
+                                                      selectedClasses.add(data);}
+                                                  else
+                                                       selectedClasses.remove(data);
+                                                });
+                                              },
+                                              cells: [
+                                                DataCell(Text(data.classCode)),
+                                                DataCell(Text(data.course)),
+                                                DataCell(Text(data.department)),
+                                                DataCell(Text(data.teacher)),
+                                                DataCell(Text(data.periods.toString())),
+                                                DataCell(Text(data.startPeriods.toString())),
+                                                DataCell(Text(day)),
+                                              ]
+                                          );
+                                        }).toList()
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0,50.0,0,0),
+                                  child: Container(
+                                    child: DataTable(
+                                      columns: [
+                                        DataColumn(label: Text('Id')),
+                                        DataColumn(label: Text('Course')),
+                                        DataColumn(label: Text('Department')),
+                                        DataColumn(label: Text('Teacher')),
+                                        DataColumn(label: Text('Credits')),
+                                        DataColumn(label: Text('Start Period')),
+                                        DataColumn(label: Text('Day in week')),
+                                        //Delete
+                                        DataColumn(label: Text(''))
+                                      ],
+                                       rows: selectedClasses.map((data) {
+                                         String day = days[data.day - 1].Day;
+                                         return DataRow(cells: [
+                                           DataCell(Text(data.classCode)),
+                                           DataCell(Text(data.course)),
+                                           DataCell(Text(data.department)),
+                                           DataCell(Text(data.teacher)),
+                                           DataCell(Text(data.periods.toString())),
+                                           DataCell(Text(data.startPeriods.toString())),
+                                           DataCell(Text(day)),
+                                           DataCell(IconButton(
+                                             icon: Icon(iconData),
+                                             onPressed: () {
+                                               setState(() {
+                                                 selectedClasses.remove(data);
+                                               });
+                                             },
+                                           ))
+                                         ]);
+                                       }).toList()
+                                    )
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [TextButton(onPressed: () async{
+                                    List<int> classes = [];
+                                    setState(() {
+                                      for(var s in selectedClasses)
+                                        {
+                                          classes.add(s.id);
+                                        }
+                                      this.userPost.classes = classes;
+                                    });
+                                    final response = await Api.updateUserinfo('Students', userPost.idCard, jsonEncode(userPost.toJson()));
+                                    print(userPost.toJson());
+                                    reload();
+                                  }, child: Text('Save'))],
                                 )
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [TextButton(onPressed: () async{
-                                List<int> classes = [];
-                                setState(() {
-                                  for(var s in selectedClasses)
-                                    {
-                                      classes.add(s.id);
-                                    }
-                                  this.userPost.classes = classes;
-                                });
-                                final response = await Api.updateUserinfo('Students', id, userPost.toJson());
-                              }, child: Text('Save'))],
+                              ],
                             )
-                          ],
-                        )
-            ),
-             ),
+              ),
+                 ),
+               ),
       );
+
     }
 }

@@ -24,7 +24,8 @@ class UserGetById {
     email = json['email'];
     phoneNumber = json['phoneNumber'];
     address = json['address'];
-    isHead = json['isHead'];
+    if(json['isHead'] != null) isHead = json['isHead'];
+    else isHead = false;
     List<ClassGet> classes = [];
     for(var c in json['classes'])
     {

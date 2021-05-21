@@ -5,6 +5,10 @@ class TokenHandle {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString(key);
   }
+  static Future<List<String>> getStringList(String key) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getStringList(key);
+}
   static Future<int> getInt(String key) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getInt(key);

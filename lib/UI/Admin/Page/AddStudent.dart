@@ -29,7 +29,7 @@ class _StudentsState extends State<Students> {
 
   Future createStudent() async {
     birthdate = date.text + '/' + month.text +'/' + year.text;
-  UserPost userPost = UserPost(null,departmentId, fullName.text, gender, birthdate, email.text, phoneNumber.text, address.text, null);
+  UserPost userPost = UserPost('',null,departmentId, fullName.text, gender, birthdate, email.text, phoneNumber.text, address.text, null);
   print(userPost.toJson());
   final response = await Api.createUser('Students', userPost);
   print(response.statusCode);
@@ -211,7 +211,7 @@ class _StudentsState extends State<Students> {
               TextButton(
                   child: Text('Save'),
                   onPressed: () async {
-                    UserPost user = UserPost(classes,departmentId, fullName.text, gender, birthday.text, email.text, phoneNumber.text, address.text, userGet.isHead);
+                    UserPost user = UserPost('',classes,departmentId, fullName.text, gender, birthday.text, email.text, phoneNumber.text, address.text, userGet.isHead);
                     final response = await Api.updateUserinfo('Students', userGet.idCard, jsonEncode(user.toJson()));
                     print(response.statusCode);
                     if(response.statusCode == 200) {Navigator.of(context).pop();
@@ -347,14 +347,20 @@ class _StudentsState extends State<Students> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Students'),
-      ),
       body: Container(
         padding: EdgeInsets.all(30),
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Container(child: Row(
+                children: [
+                  IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+                    setState(() {
+                      Navigator.of(context).pop();
+                    });
+                  })
+                ],
+              )),
               Container(
                 child: TextButton(
                   child: Text('Add new student'),
@@ -397,6 +403,7 @@ class _StudentsState extends State<Students> {
                   DataCell(IconButton(icon: Icon(FontAwesomeIcons.trashAlt),
                   onPressed: () async {
                     final response = await Api.deleteAny('Students', data.idCard);
+                    if(response.statusCode == 204) Navigator.popAndPushNamed(context, '/Students');
                   },))
                 ])).toList() ),
               )

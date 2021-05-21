@@ -1,13 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../blank.dart';
 
 void main() => runApp(
   MaterialApp(
     home: Landing(),
-    routes: {
-      '/blank': (context) => Blank(),
-    },
   )
 );
 

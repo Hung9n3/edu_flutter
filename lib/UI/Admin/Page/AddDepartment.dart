@@ -39,7 +39,7 @@ class _AddDepartmentState extends State<AddDepartment> {
     }
     return initials;
   }
-  Widget showEdit(DepartmentGet departmentGet){
+  void showEdit(DepartmentGet departmentGet){
     showDialog(context: context, builder: (BuildContext context) {
       TextEditingController name = TextEditingController(text: departmentGet.name);
       return AlertDialog(
@@ -94,12 +94,12 @@ class _AddDepartmentState extends State<AddDepartment> {
         actions: [
           TextButton(
             child: Text('Save'),
-            onPressed: (){
-              setState(() async {
+            onPressed: () async{
+
                 final response = await createDepartment();
                 print(response.statusCode);
                 if(response.statusCode == 201) Navigator.of(context).pop();
-              });
+
             }
           ),
           TextButton(
@@ -145,13 +145,20 @@ class _AddDepartmentState extends State<AddDepartment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Departments'),
-      ),
+
       body: Container(
         padding: EdgeInsets.all(30),
         child: Column(
           children: [
+            Container(child: Row(
+              children: [
+                IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: (){
+                  setState(() {
+                    Navigator.of(context).pop();
+                  });
+                })
+              ],
+            )),
             Container(
               padding: EdgeInsets.all(0),
               child: TextButton(
@@ -160,41 +167,44 @@ class _AddDepartmentState extends State<AddDepartment> {
               )
             ),
             Container(
-              padding: EdgeInsets.all(0),
-              child: DataTable(
-                columns: [
-                  DataColumn(label: Text('Id')),
-                  DataColumn(label: Text('Name')),
-                  DataColumn(label: Text('Short Name')),
-                  DataColumn(label: Text('')),
-                  DataColumn(label: Text('')),
-                ],
-                rows: departments.map((data) {
-                  return DataRow(cells: [
-                    DataCell(Text(data.Id.toString())),
-                    DataCell(Text(data.name)),
-                    DataCell(Text(data.shortName)),
-                    DataCell(TextButton(
-                      child: Text('Delete'),
-                      onPressed: (){
-                        setState(() async {
-                          final response = await Api.deleteDepartment(data.Id.toString());
-                          if(response.statusCode != 204) print('error');
-                          else departments.remove(data);
-                        });
-                      },
-                    )),
-                    DataCell(TextButton(
-                      child: Text('Edit'),
-                      onPressed: (){
-                        setState(() {
-                          showEdit(data);
-                        });
-                      },
-                    )),
-                  ]);
-                }).toList(),
-              )
+              height: 600,
+              child:SingleChildScrollView(
+                padding: EdgeInsets.all(0),
+                child: DataTable(
+                  columns: [
+                    DataColumn(label: Text('Id')),
+                    DataColumn(label: Text('Name')),
+                    DataColumn(label: Text('Short Name')),
+                    DataColumn(label: Text('')),
+                    DataColumn(label: Text('')),
+                  ],
+                  rows: departments.map((data) {
+                    return DataRow(cells: [
+                      DataCell(Text(data.Id.toString())),
+                      DataCell(Text(data.name)),
+                      DataCell(Text(data.shortName)),
+                      DataCell(TextButton(
+                        child: Text('Delete'),
+                        onPressed: (){
+                          setState(() async {
+                            final response = await Api.deleteDepartment(data.Id.toString());
+                            if(response.statusCode != 204) print('error');
+                            else departments.remove(data);
+                          });
+                        },
+                      )),
+                      DataCell(TextButton(
+                        child: Text('Edit'),
+                        onPressed: (){
+                          setState(() {
+                            showEdit(data);
+                          });
+                        },
+                      )),
+                    ]);
+                  }).toList(),
+                )
+              ),
             )
           ],
         ),
