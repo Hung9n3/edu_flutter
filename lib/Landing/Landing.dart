@@ -1,12 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(
-  MaterialApp(
-    home: Landing(),
-  )
-);
-
 class Landing extends StatelessWidget {
   List<Widget> pageChildren(double width) {
     return <Widget> [

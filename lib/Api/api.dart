@@ -150,8 +150,8 @@ static Future delete(Uri url) async {
     return response;
   }
 
-  static Future updateClasses(ClassPost classPost, int id) async {
-    var url = createUrl('Classes/' + id.toString());
+  static Future updateClasses(ClassPost classPost, String classCode) async {
+    var url = createUrl('Classes/Update/' + classCode);
     final response = await update(jsonEncode(classPost.toJson()), url);
     return response;
   }

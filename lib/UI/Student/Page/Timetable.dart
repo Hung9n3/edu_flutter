@@ -3,7 +3,6 @@ import 'package:edusoft/Auth/TokenHandle.dart';
 import 'package:edusoft/Model/Class/ClassGet.dart';
 import 'package:edusoft/Model/User/UserGetById.dart';
 import 'package:edusoft/Model/WeekDay/WeekDay.dart';
-import 'package:edusoft/UI/Admin/Page/AddTeacher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_timetable_view/flutter_timetable_view.dart';
 
@@ -51,12 +50,12 @@ class _TimetableState extends State<Timetable> {
   Future Init() async {
     final role = await TokenHandle.getStringList('role');
     switch (role[0]) {
-      case 'student' : setState(() {
+      case 'STUDENT' : setState(() {
         this.Role = 'Students';
       });
       print(Role);
       break;
-      case 'teacher' : setState(() {
+      case 'TEACHER' : setState(() {
         this.Role = 'Teachers';
       });
       print(this.Role);

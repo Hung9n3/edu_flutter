@@ -24,7 +24,7 @@ class _AddClassesState extends State<AddClasses> {
   List<Course> courses = [];
   List<ClassGet> classes = [];
     Future createClasses() async {
-    ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text);
+    ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text, null);
     print(classPost.toJson());
     var response = await Api.createClasses(classPost);
     return response;
@@ -33,6 +33,7 @@ class _AddClassesState extends State<AddClasses> {
       Navigator.popAndPushNamed(context, '/Classes');
   }
   void showEdit(ClassGet classGet){
+      int courseId;
     showDialog(context: context, builder: (BuildContext context) {
       for(var t in teachers)
         {
@@ -40,6 +41,7 @@ class _AddClassesState extends State<AddClasses> {
             {
               if (classGet.teacher == t.fullName && classGet.course == c.name) {teacherIdCard = t.idCard;
               courseCode = c.courseCode;
+              courseId = c.id;
               break;}
             }
         }
@@ -52,14 +54,16 @@ class _AddClassesState extends State<AddClasses> {
         actions: [
           TextButton(
             child: Text('Save'),
-            onPressed: (){
-              ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text);
+            onPressed: () async{
+              ClassPost classPost = ClassPost(courseCode, teacherIdCard, room.text, day, startPeriods.text, slot.text, periods.text,courseId);
+              final response = await Api.updateClasses(classPost, classGet.classCode);
             },
           ),
           TextButton(
             child: Text('Close'),
             onPressed:(){
               Navigator.of(context).pop();
+              reload();
             }
           )
         ],
@@ -101,7 +105,7 @@ class _AddClassesState extends State<AddClasses> {
                     padding: EdgeInsets.all(5),
                     child: DropdownButton(
                       isExpanded: true,
-                      hint: Text('Choose a course'),
+                      hint: Text('Choose a day'),
                       value: day,
                       elevation: 16,
                       onChanged: (int newValue){
@@ -167,6 +171,7 @@ class _AddClassesState extends State<AddClasses> {
       );
     });
   }
+
   void showAdd() {
     showDialog(
         context: context, barrierDismissible: false,
@@ -178,16 +183,13 @@ class _AddClassesState extends State<AddClasses> {
                     child: Text('Submit'),
                     onPressed: () async {
                       final response = await createClasses();
-                      if(response.statusCode == 201) {
-                        Navigator.of(context).pop();
-                        reload();
-                      }
                     }
                 ),
                 new TextButton(
                   child: new Text('Close'),
                   onPressed: () {
                     Navigator.of(context).pop();
+                    reload();
                   },
                 ),
               ],

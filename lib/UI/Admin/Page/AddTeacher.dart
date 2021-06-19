@@ -44,6 +44,9 @@ class _TeachersState extends State<Teachers> {
     print(response.statusCode);
     return response;
   }
+  void reload(){
+    Navigator.popAndPushNamed(context, '/Teachers');
+  }
   void showAdd()  {
     showDialog(
         context: context,
@@ -54,7 +57,6 @@ class _TeachersState extends State<Teachers> {
                   child: Text('Save'),
                   onPressed: () async {
                     final response = await createStudent();
-                    if(response.statusCode == 201) Navigator.of(context).pop();
                   }
               ),
               TextButton(
@@ -62,6 +64,7 @@ class _TeachersState extends State<Teachers> {
                 onPressed: (){
                   setState(() {
                     Navigator.of(context).pop();
+                    reload();
                   });
                 },
               )
@@ -223,7 +226,6 @@ class _TeachersState extends State<Teachers> {
                     UserPost user = UserPost('',classes,departmentId, fullName.text, gender, birthday.text, email.text, phoneNumber.text, address.text, userGet.isHead);
                     final response = await Api.updateUserinfo('Teachers', userGet.idCard, jsonEncode(user.toJson()));
                     print(response.statusCode);
-                    if(response.statusCode == 200) Navigator.of(context).pop();
                   }
               ),
               TextButton(
@@ -231,6 +233,7 @@ class _TeachersState extends State<Teachers> {
                 onPressed: (){
                   setState(() {
                     Navigator.of(context).pop();
+                    reload();
                   });
                 },
               )
@@ -356,7 +359,7 @@ class _TeachersState extends State<Teachers> {
                 )),
                 Container(
                   child: TextButton(
-                    child: Text('Add new student'),
+                    child: Text('Add new teacher'),
                     onPressed: (){
                       showAdd();
                     },

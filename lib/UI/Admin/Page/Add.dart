@@ -121,11 +121,11 @@ class _AddCourse extends State<AddCourse> {
             setState(() async {
               CoursesPost course = CoursesPost(name.text, credit, departmentId, data.courseCode);
               final response = await Api.updateCourses(course, data.id);
-              if(response.statusCode == 204) reload();
             });
           },),
           TextButton(onPressed: (){setState(() {
             Navigator.of(context).pop();
+            reload();
           });}, child: Text('Close'))
         ],
         content: StatefulBuilder(

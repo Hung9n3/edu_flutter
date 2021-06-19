@@ -45,7 +45,6 @@ class _StudentsState extends State<Students> {
             child: Text('Save'),
             onPressed: () async {
               final response = await createStudent();
-              if(response.statusCode == 201) Navigator.of(context).pop();
             }
           ),
           TextButton(
@@ -53,6 +52,7 @@ class _StudentsState extends State<Students> {
               onPressed: (){
                 setState(() {
                   Navigator.of(context).pop();
+                  reload();
                 });
               },
           )
@@ -185,6 +185,9 @@ class _StudentsState extends State<Students> {
       );
     });
   }
+  void reload(){
+    Navigator.popAndPushNamed(context, '/Students');
+  }
   void showEdit(UserGet userGet) async {
     print('a');
     UserGetById userGetById = await Api.getUserinfo('Students', userGet.idCard);
@@ -227,6 +230,7 @@ class _StudentsState extends State<Students> {
                 onPressed: (){
                   setState(() {
                     Navigator.of(context).pop();
+                    reload();
                   });
                 },
               )

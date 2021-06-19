@@ -39,6 +39,9 @@ class _AddDepartmentState extends State<AddDepartment> {
     }
     return initials;
   }
+  void reload(){
+    Navigator.popAndPushNamed(context, '/Departments');
+  }
   void showEdit(DepartmentGet departmentGet){
     showDialog(context: context, builder: (BuildContext context) {
       TextEditingController name = TextEditingController(text: departmentGet.name);
@@ -48,13 +51,13 @@ class _AddDepartmentState extends State<AddDepartment> {
             child: Text('Save'),
             onPressed: () async {
                 final response =  await Api.updateDepartment(DepartmentPost(name.text, getInitials(name.text)), departmentGet.Id.toString());
-                if(response.statusCode == 204) Navigator.of(context).pop();
             },
           ),
           TextButton(
               child: Text('Close'),
               onPressed:(){
                 Navigator.of(context).pop();
+                reload();
               }
           )
         ],
@@ -98,14 +101,13 @@ class _AddDepartmentState extends State<AddDepartment> {
 
                 final response = await createDepartment();
                 print(response.statusCode);
-                if(response.statusCode == 201) Navigator.of(context).pop();
-
             }
           ),
           TextButton(
               child: Text('Close'),
               onPressed:(){
                 Navigator.of(context).pop();
+                reload();
               }
           )
         ],
@@ -185,12 +187,12 @@ class _AddDepartmentState extends State<AddDepartment> {
                       DataCell(Text(data.shortName)),
                       DataCell(TextButton(
                         child: Text('Delete'),
-                        onPressed: (){
-                          setState(() async {
+                        onPressed: () async{
                             final response = await Api.deleteDepartment(data.Id.toString());
                             if(response.statusCode != 204) print('error');
-                            else departments.remove(data);
-                          });
+                            else setState(() {
+                              departments.remove(data);
+                            });
                         },
                       )),
                       DataCell(TextButton(

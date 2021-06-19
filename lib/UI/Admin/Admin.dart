@@ -76,7 +76,9 @@ class _AdminState extends State<Admin> {
             body: Column(
                 children: [
                   Headbar(Username),
-                  Expanded(child: NestedNavigator(navigationKey: _navigatorKey, initialRoute: '/', routes: {
+                  Expanded(child: NestedNavigator(navigationKey: _navigatorKey,
+                      initialRoute: '/',
+                      routes: {
                     '/' : (context) => AdminH(),
                     '/Courses' : (context) => AddCourse(),
                     '/Departments' : (context) => AddDepartment(),
@@ -103,13 +105,13 @@ class _AdminState extends State<Admin> {
     setState(() {
       this.role = role[0];
     });
-      if(this.role != 'admin') {
-        if(this.role == 'student' ) {
+      if(this.role != 'ADMIN') {
+        if(this.role == 'STUDENT' ) {
           setState(() {
             Role = 'Students';
           });
         }
-        if(this.role == 'teacher')
+        if(this.role == 'TEACHER')
           {
             setState(() {
               Role = 'Teachers';
@@ -124,9 +126,9 @@ class _AdminState extends State<Admin> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints){
-      if(role == 'student') return Student();
-      else if(role == 'teacher') return Teacher();
-      else if(role == 'admin') return Admin();
+      if(role == 'student' || role == 'STUDENT') return Student();
+      else if(role == 'teacher' ||role == 'TEACHER') return Teacher();
+      else if(role == 'admin'|| role == 'ADMIN') return Admin();
       else return Scaffold(body: Container(child: Text('who are you'+ role + '???'),));
     });
   }
